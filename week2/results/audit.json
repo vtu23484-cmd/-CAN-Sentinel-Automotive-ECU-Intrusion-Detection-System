@@ -1,0 +1,7 @@
+{
+  "attacker_frames_sent": 480,
+  "attacker_frames_observed": 480,
+  "observed_missing": 0,
+  "result": "matched",
+  "scope": "Only uniquely tagged 0x101 7FFF frames in this vcan0 capture"
+}
