@@ -67,8 +67,8 @@ Field| Description
 
 Step 1: Install the required packages
 
-sudo apt update
-sudo apt install -y build-essential can-utils iproute2 python3 python3-pip python3-venv
+1.sudo apt update
+2.sudo apt install -y build-essential can-utils iproute2 python3 python3-pip python3-venv
 
 Step 2: Configure the virtual CAN interface
 
