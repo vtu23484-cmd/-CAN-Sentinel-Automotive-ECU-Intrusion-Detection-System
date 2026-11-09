@@ -1,0 +1,24 @@
+{
+    "timing_baseline": {
+        "101": {
+            "median_interval_ms": 200.00000000000284,
+            "samples": 304
+        },
+        "102": {
+            "median_interval_ms": 500.0,
+            "samples": 102
+        }
+    },
+    "payload_baseline": {
+        "101": {
+            "common_payload": "FFE7",
+            "frequency": 0.07868852459016394,
+            "samples": 305
+        },
+        "102": {
+            "common_payload": "03E8",
+            "frequency": 0.08737864077669903,
+            "samples": 103
+        }
+    }
+}

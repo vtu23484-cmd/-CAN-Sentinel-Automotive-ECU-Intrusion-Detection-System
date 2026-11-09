@@ -23,7 +23,7 @@ if [ ! -f .venv/bin/python ]; then
   python3 -m venv .venv
 fi
 PY="$ROOT/.venv/bin/python"
-if ! "$PY" -c 'import sklearn, joblib, numpy' >/dev/null 2>&1; then
+if ! "$PY" -c 'import can, numpy, pandas, sklearn, joblib' >/dev/null 2>&1; then
   printf '\n[SETUP] Installing Isolation Forest dependencies...\n'
   "$PY" -m pip install -r week2/requirements.txt
 fi

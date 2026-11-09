@@ -1,0 +1,339 @@
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAN SENTINEL | Automotive Security Operations</title>
+<style>
+:root{
+--bg:#080e1b;--panel:#101b2d;--line:#20334c;
+--cyan:#27d9ff;--blue:#398bff;--green:#32dfa0;
+--red:#ff526d;--amber:#ffbd4a;--muted:#8398b4;
+--white:#e8f1ff
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font:14px Inter,Segoe UI,Arial,sans-serif}
+header{min-height:76px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:15px 30px;background:#0b1424}
+.brand{font-size:22px;font-weight:800;letter-spacing:2px;color:var(--cyan)}
+.brand small{display:block;font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:5px}
+.status{color:var(--amber);font-weight:700;letter-spacing:1px}
+main{max-width:1600px;margin:auto;padding:24px}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
+button{border:1px solid var(--line);border-radius:7px;padding:11px 18px;background:#14243a;color:var(--white);font-weight:700;cursor:pointer}
+button.primary{background:#075985;border-color:#0e9ac4}
+button.danger{background:#451c2a;border-color:#96384d}
+.note{margin-left:auto;color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:16px}
+.panel{background:linear-gradient(145deg,#111e32,#0d1728);border:1px solid var(--line);border-radius:11px;padding:19px;min-width:0}
+.metric-label,.section-label{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1.4px}
+.metric{font-size:30px;font-weight:800;margin:12px 0 5px}
+.metric-sub{color:var(--muted);font-size:11px}
+.cyan{color:var(--cyan)}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+.main-grid{display:grid;grid-template-columns:1.1fr 1.4fr 1fr;gap:15px;margin-bottom:16px}
+.panel h2{font-size:13px;letter-spacing:1.2px;margin:0 0 18px;color:#b8d7f4}
+.gauge-wrap{text-align:center;padding:12px 0}
+.gauge{width:190px;height:105px;margin:auto;position:relative;overflow:hidden}
+.gauge:before{content:"";position:absolute;width:170px;height:170px;border:13px solid #26364c;border-bottom-color:var(--cyan);border-radius:50%;left:10px;top:15px;transform:rotate(-45deg)}
+.gauge-value{font-size:38px;font-weight:800;margin-top:-2px}
+.gauge-caption{color:var(--muted);font-size:11px}
+.severity{display:inline-block;padding:7px 14px;border-radius:5px;background:#1b293c;color:var(--green);font-weight:800;font-size:12px;margin-top:12px}
+.ecu{display:flex;justify-content:space-between;gap:12px;padding:15px 0;border-bottom:1px solid var(--line)}
+.ecu:last-child{border:0}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:8px}
+canvas{width:100%;height:175px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
+th{color:var(--muted);font-size:10px;letter-spacing:1px;padding:12px;border-bottom:1px solid var(--line)}
+td{padding:13px 12px;border-bottom:1px solid #1b2a3e;color:#d4e2f3}
+.tag{padding:4px 8px;border-radius:4px;font-weight:800;font-size:10px;background:#26364c}
+.tag.CRITICAL,.tag.HIGH{background:#542335;color:#ff8da0}
+.tag.MEDIUM{background:#4c3a20;color:#ffd080}
+.tag.LOW,.tag.NORMAL{background:#193b3a;color:#76e8c0}
+.week4-panel{border-color:#167c9c;margin-bottom:16px}
+.week4-panel h2{color:var(--cyan)}
+.week4-panel .panel{background:#0b192b}
+.findings{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:12px;margin-top:12px}
+.footer{color:#637993;text-align:center;font-size:10px;padding:22px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.main-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){header{padding:15px}.grid,.main-grid{grid-template-columns:1fr}main{padding:14px}.note{width:100%;margin:0}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand">CAN SENTINEL<small>AUTOMOTIVE SECURITY OPERATIONS CENTRE</small></div>
+ <div class="status" id="connection">● SYSTEM OFFLINE</div>
+</header>
+
+<main>
+ <div class="toolbar">
+  <button class="primary" onclick="control('start')">▶ START MONITORING</button>
+  <button class="danger" onclick="control('stop')">■ STOP MONITORING</button>
+  <button onclick="location.href='/api/export'">↓ EXPORT FORENSIC CSV</button>
+  <span class="note">ISOLATED VIRTUAL CAN · vcan0 ONLY</span>
+ </div>
+
+ <!-- WEEK 3 EXISTING TELEMETRY -->
+ <section class="grid">
+  <div class="panel"><div class="metric-label">TOTAL CAN FRAMES</div><div class="metric cyan" id="frames">0</div><div class="metric-sub">Frames received by sniffer</div></div>
+  <div class="panel"><div class="metric-label">DETECTED INCIDENTS</div><div class="metric red" id="incidents">0</div><div class="metric-sub">Stored forensic records</div></div>
+  <div class="panel"><div class="metric-label">STEERING ECU</div><div class="metric cyan" id="steering">0</div><div class="metric-sub">CAN ID 0x101</div></div>
+  <div class="panel"><div class="metric-label">RPM ECU</div><div class="metric green" id="rpm">0</div><div class="metric-sub">CAN ID 0x102</div></div>
+ </section>
+
+ <section class="main-grid">
+  <div class="panel">
+   <h2>WEEK 3 · LIVE THREAT ASSESSMENT</h2>
+   <div class="gauge-wrap">
+    <div class="gauge"></div>
+    <div class="gauge-value" id="risk">0</div>
+    <div class="gauge-caption">RISK INDEX / 100</div>
+    <div class="severity" id="severity">NORMAL</div>
+   </div>
+   <div class="metric-sub" id="reasons" style="text-align:center;margin-top:14px">No active detection reasons</div>
+  </div>
+
+  <div class="panel">
+   <h2>CAN NETWORK ACTIVITY</h2>
+   <canvas id="traffic" width="700" height="230"></canvas>
+   <div class="metric-sub">Live frame counters · refreshes every second</div>
+  </div>
+
+  <div class="panel">
+   <h2>VIRTUAL ECU NETWORK HEALTH</h2>
+   <div class="ecu"><span><i class="dot"></i>Steering ECU</span><b id="steerHealth">READY</b></div>
+   <div class="ecu"><span><i class="dot"></i>RPM ECU</span><b id="rpmHealth">READY</b></div>
+   <div class="ecu"><span><i class="dot"></i>vcan0 interface</span><b id="canHealth">CHECKING</b></div>
+   <div class="ecu"><span><i class="dot"></i>C sniffer</span><b id="snifferHealth">STOPPED</b></div>
+   <div class="ecu"><span><i class="dot"></i>ML engine</span><b id="mlHealth">READY</b></div>
+  </div>
+ </section>
+
+ <!-- ADVANCED DETECTION -->
+ <section class="panel week4-panel">
+  <h2>· ADVANCED INTRUSION DETECTION ENGINE</h2>
+
+  <div class="grid">
+   <div class="panel">
+    <div class="metric-label">ADVANCED RISK SCORE</div>
+    <div class="metric cyan" id="week4Risk">0 / 100</div>
+    <div class="metric-sub">risk scorer</div>
+   </div>
+
+   <div class="panel">
+    <div class="metric-label">ADVANCED SEVERITY</div>
+    <div class="metric green" id="week4Severity">NORMAL</div>
+    <div class="metric-sub">assessment</div>
+   </div>
+
+   <div class="panel">
+    <div class="metric-label">TIMING DEVIATIONS</div>
+    <div class="metric cyan" id="week4Timing">0</div>
+    <div class="metric-sub">Timing findings in latest window</div>
+   </div>
+
+   <div class="panel">
+    <div class="metric-label">PAYLOAD FINDINGS</div>
+    <div class="metric cyan" id="week4Payload">0</div>
+    <div class="metric-sub">Payload findings in latest window</div>
+   </div>
+  </div>
+
+  <div class="ecu">
+   <span>Detection status</span>
+   <b id="week4Status">NORMAL</b>
+  </div>
+  <div class="ecu">
+   <span>Finding count</span>
+   <b id="week4Findings">0</b>
+  </div>
+  <div class="ecu">
+   <span>Latest incident ID</span>
+   <b id="week4Incident">None</b>
+  </div>
+  <div class="findings" id="week4Reasons">No anomalies detected</div>
+ </section>
+
+ <!-- INCIDENT HISTORY -->
+ <section class="panel">
+  <h2>SECURITY INCIDENT CENTRE · LATEST 20 RECORDS</h2>
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr><th>ID</th><th>TIMESTAMP</th><th>SEVERITY</th><th>RISK</th><th>CAN IDS</th><th>DETECTION REASONS</th></tr>
+    </thead>
+    <tbody id="incidentRows">
+     <tr><td colspan="6">Loading forensic records...</td></tr>
+    </tbody>
+   </table>
+  </div>
+ </section>
+
+ <div class="footer">CAN SENTINEL · DEFENSIVE AUTOMOTIVE IDS · SYNTHETIC TESTING RESTRICTED TO vcan0</div>
+</main>
+
+<script>
+const history=[];
+
+async function control(action){
+ try{
+  const r=await fetch('/api/'+action,{method:'POST'});
+  const d=await r.json();
+  if(!r.ok)alert(d.error||'Operation failed');
+  else alert(d.message);
+  refresh();
+ }catch(e){alert('Dashboard service unavailable');}
+}
+
+function draw(){
+ const c=document.getElementById('traffic');
+ const x=c.getContext('2d');
+ const w=c.width,h=c.height;
+ x.clearRect(0,0,w,h);
+ x.strokeStyle='#26364c';
+ x.fillStyle='#8398b4';
+ x.font='12px Arial';
+
+ for(let i=0;i<5;i++){
+  let y=15+i*(h-35)/4;
+  x.beginPath();x.moveTo(35,y);x.lineTo(w-8,y);x.stroke();
+ }
+
+ const vals=history.slice(-30);
+ const max=Math.max(5,...vals.map(v=>v.frames));
+ x.strokeStyle='#27d9ff';
+ x.lineWidth=3;
+ x.beginPath();
+
+ vals.forEach((v,i)=>{
+  let px=40+i*(w-55)/Math.max(1,vals.length-1);
+  let py=h-20-(v.frames/max)*(h-45);
+  i?x.lineTo(px,py):x.moveTo(px,py);
+ });
+ x.stroke();
+}
+
+function setSeverity(element,value){
+ element.textContent=value;
+ element.style.color=
+  value==='CRITICAL'||value==='HIGH'?'#ff8da0':
+  value==='MEDIUM'?'#ffd080':'#76e8c0';
+}
+
+function updateWeek4(s){
+ const reasons=s.week4_reasons||[];
+ const score=s.week4_risk_score??0;
+ const severity=s.week4_severity||'NORMAL';
+
+ document.getElementById('week4Risk').textContent=score+' / 100';
+
+ setSeverity(document.getElementById('week4Severity'),severity);
+
+ document.getElementById('week4Status').textContent=
+  severity==='NORMAL'?'NORMAL': 'ANOMALY DETECTED';
+
+ document.getElementById('week4Status').style.color=
+  severity==='CRITICAL'||severity==='HIGH'?'#ff8da0':
+  severity==='MEDIUM'?'#ffd080':'#76e8c0';
+
+ // Count actual finding labels reported by the backend.
+ document.getElementById('week4Timing').textContent=
+  reasons.filter(r=>String(r).toLowerCase().includes('timing')).length;
+
+ document.getElementById('week4Payload').textContent=
+  reasons.filter(r=>String(r).toLowerCase().includes('payload')).length;
+
+ document.getElementById('week4Findings').textContent=reasons.length;
+ document.getElementById('week4Incident').textContent=
+  s.week4_incident_id??'None';
+
+ document.getElementById('week4Reasons').textContent=
+  reasons.length?reasons.join(', '):'No anomalies detected';
+}
+
+async function refresh(){
+ try{
+  const [sr,ir]=await Promise.all([
+   fetch('/api/status'),
+   fetch('/api/incidents')
+  ]);
+
+  if(!sr.ok||!ir.ok)throw new Error('API request failed');
+
+  const s=await sr.json();
+  const inc=await ir.json();
+
+  document.getElementById('connection').textContent=
+   s.running?'● MONITORING ACTIVE':'● SYSTEM STOPPED';
+
+  document.getElementById('connection').style.color=
+   s.running?'#32dfa0':'#ffbd4a';
+
+  document.getElementById('frames').textContent=s.frames||0;
+  document.getElementById('steering').textContent=s.steering||0;
+  document.getElementById('rpm').textContent=s.rpm||0;
+  document.getElementById('incidents').textContent=inc.length;
+
+  document.getElementById('risk').textContent=s.risk_score||0;
+
+  const sev=s.severity||'NORMAL';
+  setSeverity(document.getElementById('severity'),sev);
+
+  document.getElementById('reasons').textContent=
+   (s.reasons||[]).join(', ')||'No active detection reasons';
+
+  document.getElementById('canHealth').textContent=
+   s.vcan?'ACTIVE':'CHECK';
+
+  document.getElementById('snifferHealth').textContent=
+   s.sniffer?'CONNECTED':'STOPPED';
+
+  document.getElementById('mlHealth').textContent=
+   s.model?'READY':'CHECK';
+
+  document.getElementById('steerHealth').textContent=
+   'ID 101 · '+(s.steering||0)+' frames';
+
+  document.getElementById('rpmHealth').textContent=
+   'ID 102 · '+(s.rpm||0)+' frames';
+
+  updateWeek4(s);
+
+  history.push({frames:s.frames||0});
+  if(history.length>30)history.shift();
+  draw();
+
+  const tbody=document.getElementById('incidentRows');
+  tbody.innerHTML=inc.map(a=>`
+   <tr>
+    <td>${a.id??''}</td>
+    <td>${a.timestamp??''}</td>
+    <td><span class="tag ${a.severity??'NORMAL'}">${a.severity??'NORMAL'}</span></td>
+    <td>${a.risk_score??''}</td>
+    <td>${a.can_ids??''}</td>
+    <td>${a.reasons??''}</td>
+   </tr>
+  `).join('')||'<tr><td colspan="6">No incidents recorded yet</td></tr>';
+
+ }catch(e){
+  document.getElementById('connection').textContent='● API DISCONNECTED';
+  console.error('Dashboard refresh failed:',e);
+ }
+}
+
+refresh();
+setInterval(refresh,1000);
+</script>
+</body>
+</html>

@@ -2,3 +2,38 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Generated CAN executables
+/week2/attacker
+/week2/steering_ecu
+/week2/rpm_ecu
+/steering_ecu
+/rpm_ecu
+
+# Generated Week 2 results
+/week2/results/*.log
+/week2/results/*.csv
+/week2/results/*.joblib
+/week2/results/*.json
+
+# CAN Sentinel Week 3 generated files
+/week3/__pycache__/
+/week3/*.db
+/week3/*.db-shm
+/week3/*.db-wal
+/week3/live_status.json
+/week3/web_dashboard.log
+/week3/sniffer
+/week3/results/
+
+# CAN Sentinel Week 4 generated files
+/week4/results/
+/week4/reports/*.json
+/week4/models/__pycache__/
+
+# Local captures and backups
+/backups/
+/data/
+
+# Compiled Python cache
+*.pyc
