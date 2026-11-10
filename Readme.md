@@ -1,274 +1,496 @@
-# CAN-Sentinel: Automotive ECU Intrusion Detection System
+# CAN Sentinel – Automotive ECU Intrusion Detection System
 
-CAN-Sentinel is an educational cybersecurity project that simulates communication between automotive Electronic Control Units (ECUs), captures Controller Area Network (CAN) frames, and detects unusual traffic patterns. It uses a **virtual CAN interface (`vcan0`)** for safe testing; it is not designed to connect to or control a real vehicle.
+## 1. Project Overview
 
-## Project Goals
+**CAN Sentinel** is an academic cybersecurity project focused on detecting suspicious activity and potential intrusions in an automotive Controller Area Network (CAN).
 
-- Simulate normal Steering ECU and RPM ECU communication.
-- Capture and store CAN traffic in CSV format.
-- Generate controlled, synthetic high-frequency CAN traffic for testing.
-- Train an Isolation Forest model on baseline traffic.
-- Flag unusual traffic patterns for further investigation.
-- Produce logs, audit results, and an HTML mid-review report.
+Modern vehicles use ECUs (Electronic Control Units) to manage important functions such as engine operation, steering, braking, and other vehicle systems. These ECUs communicate through the CAN bus. However, CAN communication does not provide built-in authentication or encryption in its traditional form, making it important to monitor network traffic for suspicious activity.
 
-## Current Features
+This project develops a progressive CAN Intrusion Detection System (IDS) across four development stages:
 
-### Week 1 — CAN simulation and logging
-- Virtual CAN network using Linux SocketCAN and `vcan0`.
-- C-based Steering ECU and RPM ECU simulators.
-- CAN frame testing with `cansend` and `candump`.
-- Python traffic logger and CSV storage.
-- Captured fields include timestamps, elapsed time, CAN ID, DLC, hexadecimal payload, and message type.
+- **Week 1:** CAN environment setup and basic CAN communication.
+- **Week 2:** ECU simulation, attack simulation, traffic capture, and machine-learning-based anomaly detection.
+- **Week 3:** Behavioral anomaly detection, CAN sniffing, forensic incident handling, and web dashboard.
+- **Week 4:** Advanced anomaly detection, risk scoring, incident storage, model comparison, and forensic reporting.
 
-### Week 2 — Detection demonstration
-- C-based synthetic CAN traffic injector for controlled testing.
-- Baseline training using an Isolation Forest machine-learning model.
-- Live virtual-CAN capture and anomaly detection.
-- Sent-versus-received traffic audit.
-- HTML report generation.
+The project is intended for academic research, demonstration, and cybersecurity learning.
 
-> Detection results are experimental and intended for a student demonstration. An anomaly is not automatically proof of a real attack, and this prototype is not a production automotive safety system.
+---
 
-## Technology Stack
+## 2. Project Objectives
 
-- **Languages:** Python and C
-- **CAN networking:** Linux SocketCAN, `vcan0`, `can-utils`
-- **Machine learning:** scikit-learn Isolation Forest
-- **Data:** CSV, JSON, logs, HTML report
-- **Build tools:** GCC, Bash
-- **Environment:** Ubuntu Linux or Ubuntu on WSL2
-- **Version control:** Git and GitHub
+- Understand automotive CAN communication.
+- Simulate communication between multiple ECUs.
+- Generate normal and suspicious CAN traffic in an isolated test environment.
+- Capture and analyze CAN messages.
+- Detect abnormal CAN communication patterns.
+- Explore machine-learning-based intrusion detection.
+- Monitor suspicious ECU behavior.
+- Maintain incident records and forensic evidence.
+- Present detection results through a local dashboard.
+- Evaluate the system through automated tests.
 
-## Repository Structure
+---
 
-```text
-CAN-Sentinel/
-├── README.md
-├── can_logger.py
-├── can_logger_demo.py
-├── can_logger_test.py
-├── can_traffic.csv
-├── can_traffic_before_test.csv
-├── can_traffic_demo.csv
-├── can_traffic_test.csv
-├── steering_ecu.c
-├── rpm_ecu.c
-├── START_WEEK2.sh
-├── START_WEEK2_WINDOWS.bat
-└── week2/
-    ├── attacker.c
-    ├── audit.py
-    ├── build.sh
-    ├── capture.py
-    ├── detect.py
-    ├── live_report.py
-    ├── pipeline.py
-    ├── requirements.txt
-    ├── review_offline.py
-    ├── run_live_review.sh
-    ├── setup_vcan.sh
-    ├── train.py
-    ├── tests/
-    │   └── test_week2.py
-    └── results/
-        ├── LIVE_MID_REVIEW.html
-        ├── live_capture.csv
-        ├── live_detection.csv
-        └── supporting logs and audit output
-```
+## 3. Project Development – Week 1 to Week 4
 
-The `week2/results/` files are generated or updated by the demonstration scripts. Exact contents may vary by run.
+### Week 1 – CAN Environment Setup and Basic Communication
 
-## Requirements
+**Objective:** Establish the basic environment required for automotive CAN communication and intrusion detection.
 
-For the live demonstration, use **Ubuntu Linux or Ubuntu on WSL2** with a kernel that supports SocketCAN and virtual CAN.
+Main activities:
 
-Required tools:
-- GCC / build-essential
-- Python 3 and `venv`
-- `iproute2`
-- `can-utils`
-- `kmod` (for `modprobe`)
-- Python packages listed in `week2/requirements.txt`
+- Set up the Linux development environment.
+- Configure the virtual CAN interface.
+- Understand CAN communication and CAN frames.
+- Explore CAN message transmission and reception.
+- Establish the foundation for ECU communication and traffic monitoring.
 
-The Windows batch file is a launcher for Ubuntu WSL2; it does not run the CAN networking code natively in Windows Command Prompt.
+Main project areas:
 
-## Quick Start — Ubuntu / WSL2
+- CAN interface configuration.
+- Basic CAN communication scripts.
+- Initial traffic generation and monitoring.
+- Environment preparation.
 
-### Option A: Run the complete Week 2 demonstration
+**Purpose:** Build the foundation for subsequent ECU simulation and intrusion detection.
 
-From the repository root in Ubuntu/WSL2:
+### Week 2 – ECU Simulation and Machine Learning-Based Detection
 
-```bash
-chmod +x START_WEEK2.sh week2/*.sh
-./START_WEEK2.sh
-```
+**Objective:** Simulate ECU communication, generate CAN traffic, and explore anomaly detection.
 
-The script checks/installs required Linux tools, creates a Python virtual environment, installs the machine-learning dependencies, and launches the live virtual-CAN demonstration. It may request your Linux password for `sudo`.
+Main activities:
 
-When it finishes, open:
+- Simulate ECU communication.
+- Generate normal CAN traffic.
+- Simulate suspicious CAN activity in an isolated virtual environment.
+- Capture CAN traffic for analysis.
+- Collect and process traffic data.
+- Use an Isolation Forest model for anomaly detection.
+- Analyze captured traffic and detection results.
 
-```text
-week2/results/LIVE_MID_REVIEW.html
-```
+Important project components include:
 
-### Option B: Start from Windows
+- `week2/setup_vcan.sh` – virtual CAN interface setup.
+- `week2/attacker` – attack simulation component.
+- `week2/rpm_ecu` – RPM ECU simulation.
+- `week2/steering_ecu` – steering ECU simulation.
+- `week2/results/` – traffic captures, logs, model, and detection results.
 
-1. Install WSL2 and Ubuntu if they are not already installed.
-2. Extract the repository into a Windows folder accessible from WSL.
-3. Double-click `START_WEEK2_WINDOWS.bat`, or run it from Command Prompt.
-4. If it fails, open Ubuntu and try `./START_WEEK2.sh` from the repository directory to see the full error.
+**Purpose:** Demonstrate how abnormal CAN traffic can be identified using traffic analysis and machine learning.
 
-If `vcan0` cannot be created, update WSL from an Administrator PowerShell window:
+### Week 3 – Behavioral Detection and Web Dashboard
 
-```powershell
-wsl --update
-wsl --shutdown
-```
+**Objective:** Improve detection by analyzing ECU behavior and providing a dashboard for monitoring.
 
-Then reopen Ubuntu and retry. Some WSL/kernel environments may not support the required virtual CAN operations; a compatible Linux VM or Linux machine may be needed.
+Main files:
 
-## Manual Week 1 Setup
-
-Run these commands in Ubuntu. Execute commands from the repository root unless noted.
-
-### 1. Install system packages
-
-```bash
-sudo apt update
-sudo apt install -y build-essential can-utils iproute2 kmod python3 python3-pip python3-venv
-```
-
-### 2. Create the virtual CAN interface
-
-```bash
-sudo modprobe vcan
-sudo ip link add dev vcan0 type vcan
-sudo ip link set up vcan0
-ip -details link show vcan0
-```
-
-If `vcan0` already exists, do not create it again; bring it up with:
-
-```bash
-sudo ip link set up vcan0
-```
-
-### 3. Compile the ECU simulators
-
-```bash
-gcc steering_ecu.c -o steering_ecu
-gcc rpm_ecu.c -o rpm_ecu
-```
-
-### 4. Observe traffic
-
-In one terminal:
-
-```bash
-candump vcan0
-```
-
-In another terminal, send a test frame:
-
-```bash
-cansend vcan0 123#1122334455667788
-```
-
-The frame should appear in the `candump` terminal if the interface is working.
-
-### 5. Run the Week 1 logger
-
-In another terminal:
-
-```bash
-python3 can_logger.py
-```
-
-Stop the logger with `Ctrl+C`. Check the configured CSV output file for recorded messages. The demo and test logger scripts use their own output files.
-
-## Week 2 Detection Workflow
-
-The complete launcher runs the following workflow:
-
-1. Configure `vcan0`.
-2. Compile the Steering ECU, RPM ECU, and synthetic attacker.
-3. Train the Isolation Forest model using `can_traffic_demo.csv`.
-4. Capture live frames from the virtual CAN interface.
-5. Run normal ECU simulators, then send controlled high-frequency synthetic frames.
-6. Run anomaly detection and audit sent/received traffic.
-7. Generate `week2/results/LIVE_MID_REVIEW.html`.
-
-The scripts and parameters are available in `week2/`. Review their output logs if a stage fails.
-
-## CSV Data Format
-
-The logger's CSV format includes these columns:
-
-| Column | Meaning |
+| File | Purpose |
 |---|---|
-| `timestamp_utc` | UTC time associated with the captured frame |
-| `elapsed_seconds` | Elapsed time recorded by the logger |
-| `can_id` | CAN message identifier |
-| `dlc` | Data Length Code / payload length |
-| `data_hex` | Payload bytes represented in hexadecimal |
-| `message_type` | Label assigned by the logger |
+| `week3/behavioral_detector.py` | Behavioral anomaly detection |
+| `week3/dashboard.py` | Dashboard-related functionality |
+| `week3/forensic_manager.py` | Forensic incident handling |
+| `week3/sniffer.c` | CAN sniffer source code |
+| `week3/socket_server.py` | Socket communication server |
+| `week3/web_dashboard.py` | Local web dashboard server |
+| `week3/web/index.html` | Dashboard interface |
 
-The Week 2 pipeline validates the CSV structure and checks CAN identifiers, elapsed times, DLC values, and payload lengths before feature extraction.
+Main activities:
 
-## Troubleshooting
+- Monitor CAN traffic.
+- Analyze ECU behavior.
+- Detect suspicious communication patterns.
+- Capture traffic using the CAN sniffer.
+- Manage forensic incidents.
+- Display monitoring information through a web dashboard.
 
-### `vcan0` already exists
-Run:
-
-```bash
-sudo ip link set dev vcan0 up
-```
-
-### `RTNETLINK answers: Operation not supported` or permission errors
-- Confirm that the command is running inside Ubuntu/Linux, not plain Windows Command Prompt.
-- Update WSL2 and restart it.
-- Confirm your environment permits virtual CAN and network-interface administration.
-- If unsupported, use a compatible Linux VM or Linux computer.
-
-### `ModuleNotFoundError` for `sklearn`, `joblib`, or `numpy`
-From the repository root:
+**Launch command:**
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r week2/requirements.txt
+./week3.sh
 ```
 
-Then run `./START_WEEK2.sh` again, or use the project's scripts with the same virtual environment.
+Open the dashboard in a browser:
 
-### No frames appear in `candump`
-- Check that `vcan0` exists and is up: `ip -brief link show vcan0`
-- Keep `candump vcan0` running while sending a frame.
-- Ensure all commands use the same Linux/WSL environment.
+```text
+http://127.0.0.1:8765
+```
 
-### The HTML report is not created
-Read the terminal output and logs in `week2/results/`. The report is generated only after the earlier capture, detection, and audit stages complete successfully.
+The launcher prepares the virtual CAN interface, checks the Python environment, compiles the C sniffer, and starts the dashboard.
 
-## Safety and Responsible Use
+**Purpose:** Provide behavioral monitoring and a visual interface for observing CAN intrusion detection activity.
 
-- Use only the provided virtual CAN network for this demonstration.
-- Do not connect the synthetic attacker to a real vehicle or safety-critical system.
-- Do not interpret model alerts as definitive proof of malicious activity.
-- Validate any future extensions with controlled datasets and documented tests.
+### Week 4 – Advanced Detection, Risk Scoring and Forensics
 
-## Future Improvements
+**Objective:** Extend CAN Sentinel with advanced detection, incident management, and forensic reporting.
 
-- Add more ECU message patterns and larger baseline datasets.
-- Evaluate detection accuracy with labelled normal and synthetic attack traffic.
-- Add configurable alert thresholds and clearer alert explanations.
-- Add a dashboard for live traffic and investigation history.
-- Improve automated tests and document precision, recall, and false-positive rates.
+Main components:
 
-## Author / Project Information
+| File | Purpose |
+|---|---|
+| `week4/detection/timing_detector.py` | Detects CAN message timing deviations |
+| `week4/detection/payload_detector.py` | Detects suspicious payload patterns |
+| `week4/detection/advanced_engine.py` | Combines advanced detection results |
+| `week4/detection/risk_scorer.py` | Calculates project-specific risk scores |
+| `week4/detection/incident_manager.py` | Manages security incidents |
+| `week4/detection/incident_store.py` | Stores incident records |
+| `week4/detection/live_adapter.py` | Adapter for live-data integration |
+| `week4/models/baseline.json` | Saved baseline data |
+| `week4/models/save_baseline.py` | Creates and saves the baseline |
+| `week4/models/model_comparison.py` | Compares detection models |
+| `week4/reports/export_forensics.py` | Exports forensic reports |
+| `week4/run_tests.sh` | Week 4 automated test launcher |
+| `week4/tests/` | Automated test suite |
 
-**Project:** CAN-Sentinel — Automotive ECU Intrusion Detection System  
-**Focus:** Virtual CAN simulation, traffic logging, and anomaly detection  
-**Purpose:** Educational cybersecurity project / internship demonstration
+Main activities:
 
-Add your name, institution, mentor, internship organization, and project dates here if required by your submission format.
+- Detect abnormal CAN message timing.
+- Analyze suspicious payload patterns.
+- Combine detection findings.
+- Calculate risk scores.
+- Manage and store security incidents.
+- Compare detection models.
+- Export forensic incident reports.
+- Run automated tests.
+
+**Launch command:**
+
+```bash
+./week4.sh
+```
+
+Run only the Week 4 test suite:
+
+```bash
+bash week4/run_tests.sh
+```
+
+Export the forensic report independently:
+
+```bash
+.venv/bin/python -m week4.reports.export_forensics
+```
+
+Expected forensic report location:
+
+```text
+week4/reports/forensic_report.json
+```
+
+**Purpose:** Provide a more complete intrusion detection and incident investigation workflow.
+
+---
+
+## 4. Repository Structure
+
+The repository is organized into weekly development stages.
+
+```text
+CAN-Sentinel-Automotive-ECU-Intrusion-Detection-System/
+│
+├── week1.sh
+├── week2.sh
+├── week3.sh
+├── week4.sh
+├── normal_traffic.sh
+│
+├── week2/
+│   ├── setup_vcan.sh
+│   ├── attacker
+│   ├── rpm_ecu
+│   ├── steering_ecu
+│   └── results/
+│
+├── week3/
+│   ├── behavioral_detector.py
+│   ├── dashboard.py
+│   ├── forensic_manager.py
+│   ├── sniffer.c
+│   ├── socket_server.py
+│   ├── web_dashboard.py
+│   ├── web/
+│   └── results/
+│
+├── week4/
+│   ├── detection/
+│   ├── models/
+│   ├── reports/
+│   ├── results/
+│   ├── tests/
+│   ├── run_tests.sh
+│   └── README.md
+│
+├── CAN-Sentinel/
+│   └── README.md
+│
+├── data/
+├── backups/
+└── README.md
+```
+
+*Note: This is a high-level structure. Additional scripts, logs, datasets, databases, and generated files may exist in individual directories.*
+
+---
+
+## 5. Technologies and Dependencies
+
+The project uses the following technologies and tools:
+
+| Technology | Purpose |
+|---|---|
+| Ubuntu / Linux | Development and execution environment |
+| WSL2 | Running Ubuntu on Windows |
+| Python 3 | Detection logic and automation |
+| Bash | Launchers and setup scripts |
+| GCC | Compiling the Week 3 C sniffer |
+| SocketCAN | Linux CAN communication framework |
+| Virtual CAN (`vcan`) | Isolated CAN testing |
+| Scikit-learn | Machine-learning-based anomaly detection |
+| Isolation Forest | Anomaly detection model |
+| SQLite | Incident and event storage |
+| HTML | Dashboard interface |
+| JSON / CSV | Data storage and reporting |
+| Git and GitHub | Version control and project hosting |
+
+### System requirements
+
+- Windows with WSL2, or a compatible Linux environment.
+- Ubuntu.
+- Python 3.
+- Python virtual environment support.
+- GCC compiler for the Week 3 sniffer.
+- Linux SocketCAN and virtual CAN support.
+- Required Python packages used by the project.
+
+### Python dependencies
+
+The project uses a local Python virtual environment:
+
+```text
+.venv/
+```
+
+Set up the project environment using the existing Week 2 launcher:
+
+```bash
+./week2.sh
+```
+
+The exact Python package list should be maintained in a project dependency file such as `requirements.txt` if one is provided. Check the repository for the actual dependency manifest before installing packages manually.
+
+---
+
+## 6. Running the Project
+
+Run commands from the repository root in Ubuntu/WSL.
+
+### Step 1 – Set up the environment
+
+```bash
+./week2.sh
+```
+
+### Step 2 – Run Week 1
+
+```bash
+./week1.sh
+```
+
+### Step 3 – Run Week 2
+
+```bash
+./week2.sh
+```
+
+### Step 4 – Run Week 3
+
+```bash
+./week3.sh
+```
+
+Dashboard:
+
+```text
+http://127.0.0.1:8765
+```
+
+### Step 5 – Run Week 4
+
+```bash
+./week4.sh
+```
+
+### Stop running processes
+
+Use:
+
+```text
+Ctrl+C
+```
+
+in the terminal running the relevant launcher.
+
+---
+
+## 7. Running from Windows CMD using WSL2
+
+If you are using Windows CMD, you can execute the project launchers through WSL.
+
+Example:
+
+```cmd
+wsl -d Ubuntu --cd "~/-CAN-Sentinel-Automotive-ECU-Intrusion-Detection-System" --exec bash -lc "./week2.sh"
+```
+
+For Week 1:
+
+```cmd
+wsl -d Ubuntu --cd "~/-CAN-Sentinel-Automotive-ECU-Intrusion-Detection-System" --exec bash -lc "./week1.sh"
+```
+
+For Week 3:
+
+```cmd
+wsl -d Ubuntu --cd "~/-CAN-Sentinel-Automotive-ECU-Intrusion-Detection-System" --exec bash -lc "./week3.sh"
+```
+
+For Week 4:
+
+```cmd
+wsl -d Ubuntu --cd "~/-CAN-Sentinel-Automotive-ECU-Intrusion-Detection-System" --exec bash -lc "./week4.sh"
+```
+
+---
+
+## 8. Testing and Verification
+
+The project includes different testing and validation activities across its development stages.
+
+### Week 2
+
+- Verify virtual CAN interface setup.
+- Check ECU simulation.
+- Capture normal and suspicious traffic.
+- Review traffic logs and anomaly detection outputs.
+
+### Week 3
+
+- Build the CAN sniffer.
+- Start the dashboard.
+- Verify local dashboard access.
+- Review behavioral detection and forensic outputs.
+
+### Week 4
+
+Run the complete test suite:
+
+```bash
+bash week4/run_tests.sh
+```
+
+Individual tests:
+
+```bash
+.venv/bin/python week4/tests/test_advanced_engine.py
+.venv/bin/python week4/tests/test_incident_manager.py
+.venv/bin/python week4/tests/test_incident_store.py
+.venv/bin/python week4/tests/test_live_adapter.py
+.venv/bin/python week4/tests/test_model_comparison.py
+.venv/bin/python week4/tests/test_payload_detector.py
+.venv/bin/python week4/tests/test_risk_scorer.py
+.venv/bin/python week4/tests/test_saved_baseline.py
+.venv/bin/python week4/tests/test_timing_detector.py
+```
+
+Review generated results in the relevant `results/` and `reports/` directories.
+
+---
+
+## 9. Expected Outputs
+
+Depending on the development stage and tests executed, the project can generate:
+
+- CAN traffic capture logs.
+- ECU simulation logs.
+- Normal and suspicious traffic datasets.
+- Machine-learning anomaly detection results.
+- Behavioral detection results.
+- Incident records.
+- SQLite incident databases.
+- Model comparison results.
+- Forensic reports in JSON or CSV format.
+- Local dashboard monitoring information.
+
+Generated results are stored in the respective weekly project directories.
+
+---
+
+## 10. Security and Safety Considerations
+
+**Important: This project is an academic and experimental CAN intrusion detection system.**
+
+- Use `vcan0` or offline datasets for synthetic CAN traffic and attack demonstrations.
+- Never inject synthetic attack traffic into a real vehicle or safety-critical CAN network.
+- Do not connect attack simulation scripts to an actual vehicle.
+- Treat detection thresholds and risk scores as experimental.
+- Risk scores are project-specific indicators, not validated attack probabilities.
+- A successful virtual CAN test does not establish readiness for real-vehicle deployment.
+- Live CAN integration requires separate safety engineering, validation, and authorization.
+
+---
+
+## 11. Current Project Scope and Limitations
+
+CAN Sentinel demonstrates a progressive approach to automotive network intrusion detection.
+
+The project explores:
+
+- Basic CAN communication.
+- ECU simulation.
+- Traffic capture and analysis.
+- Machine-learning-based anomaly detection.
+- Behavioral monitoring.
+- Advanced detection methods.
+- Incident management.
+- Risk scoring.
+- Forensic reporting.
+
+The system is not certified for automotive production deployment. Its detection accuracy, performance, thresholds, and compatibility with real vehicle networks require further independent validation.
+
+---
+
+## 12. Future Enhancements
+
+Potential future improvements include:
+
+- More advanced CAN intrusion detection algorithms.
+- Improved detection accuracy and false-positive reduction.
+- Additional ECU behavioral profiles.
+- Real-time alerting and notifications.
+- Improved dashboard visualization.
+- Extended forensic evidence and audit trails.
+- Larger and more diverse CAN datasets.
+- Independent performance evaluation.
+- Safety-reviewed integration with authorized automotive test benches.
+
+---
+
+## 13. Documentation
+
+Additional project documentation:
+
+- [Week 4 Documentation](week4/README.md)
+- [Company-Oriented CAN Sentinel Documentation](CAN-Sentinel/README.md)
+
+---
+
+## 14. Conclusion
+
+CAN Sentinel demonstrates the development of an automotive CAN Intrusion Detection System from basic CAN communication and ECU simulation to behavioral monitoring, advanced anomaly detection, incident management, and forensic reporting.
+
+Through four development stages, the project provides a practical learning platform for understanding automotive cybersecurity and the challenges involved in detecting suspicious CAN bus activity.
+
+**Project:** CAN Sentinel – Automotive ECU Intrusion Detection System  
+**Focus:** Automotive Cybersecurity and CAN Intrusion Detection  
+**Environment:** Ubuntu / WSL2  
+**Development stages:** Week 1 to Week 4
